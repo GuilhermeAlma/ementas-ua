@@ -3,7 +3,7 @@
 **Live Demo:** [Click here to view the live website](https://guilhermealma.github.io/ementas-ua)
 
 ### About the Project
-A fully automated Python script that scrapes the daily menus from the Universidade de Aveiro canteens (Santiago, Grelhados, and Crasto) and deploys them to a mobile-friendly, responsive static webpage.
+A fully automated Python script that scrapes the daily menus from the Universidade de Aveiro canteens (Santiago, Grelhados, and Crasto). It deploys a mobile-friendly webpage accessible from any network, removing the need to be connected to Eduroam or a VPN.
 
 ![Preview](preview.png)
 

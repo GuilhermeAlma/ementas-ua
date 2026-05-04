@@ -1,3 +1,5 @@
+import os
+
 import requests
 from bs4 import BeautifulSoup
 import urllib3
@@ -146,15 +148,34 @@ def save_to_html(data):
         f.write(html_start + content + html_end)
 
 def git_push():
-    print("A enviar atualizações para o GitHub...")
+    print("A iniciar sincronização com o GitHub...")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
     try:
-        subprocess.run(["git", "add", "index.html"], check=True)
-        commit_msg = f"Update ementa {datetime.now().strftime('%Y-%m-%d %H:%M')}"
-        subprocess.run(["git", "commit", "-m", commit_msg], check=True)
-        subprocess.run(["git", "push", "origin", "main"], check=True)
+        # 1. ADD AND COMMIT FIRST: Save the newly generated index.html
+        subprocess.run(["git", "add", "index.html"], cwd=script_dir, check=True)
+        status = subprocess.run(["git", "status", "--porcelain"], cwd=script_dir, capture_output=True, text=True)
+        
+        if "index.html" in status.stdout:
+            commit_msg = f"Update ementa {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+            subprocess.run(["git", "commit", "-m", commit_msg], cwd=script_dir, check=True)
+            print("Novo commit criado com sucesso.")
+        else:
+            print("O ficheiro local não tem alterações novas. A ignorar a fase de commit.")
+
+        # 2. PULL SECOND: Now that the working folder is "clean" and saved, safely download cloud updates
+        print("A verificar atualizações na nuvem...")
+        subprocess.run(["git", "pull", "--rebase", "origin", "main"], cwd=script_dir, check=False)
+
+        # 3. PUSH THIRD: Upload everything to GitHub
+        print("A enviar para a nuvem...")
+        subprocess.run(["git", "push", "origin", "main"], cwd=script_dir, check=True)
         print("Sincronização concluída com sucesso!")
+        
+    except subprocess.CalledProcessError as e:
+        print(f"Erro de execução do Git: {e}")
     except Exception as e:
-        print(f"Erro ao sincronizar com GitHub: {e}")
+        print(f"Erro inesperado: {e}")
 
 if __name__ == "__main__":
     data = scrape_all_menus()
